@@ -64,7 +64,7 @@ export default function VideoScene({ scene, onVideoEnd, isActive }) {
       {!showPlaceholder && (
         <video
           ref={videoRef}
-          src={scene.video}
+          src={scene.video ? `${import.meta.env.BASE_URL}${scene.video.startsWith('/') ? scene.video.slice(1) : scene.video}` : ''}
           className="absolute inset-0 w-full h-full object-contain"
           autoPlay
           playsInline
