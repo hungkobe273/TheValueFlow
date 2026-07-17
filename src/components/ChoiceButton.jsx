@@ -15,15 +15,15 @@ export default function ChoiceButton({ choice, onClick, index }) {
     <motion.button
       variants={itemVariants}
       onClick={onClick}
-      className="group relative w-full text-left glass rounded-xl p-5 md:p-6 border-l-2 border-gold-400/30 hover:border-gold-400 transition-all duration-300 overflow-hidden"
+      className="group relative w-full text-left glass rounded-xl p-5 md:p-6 border border-white/5 border-l-2 border-l-gold-400/40 hover:border-l-gold-400 hover:border-white/10 transition-all duration-300 overflow-hidden"
       whileHover={{
-        scale: 1.02,
-        boxShadow: '0 0 25px rgba(212, 168, 83, 0.12), 0 0 50px rgba(212, 168, 83, 0.05)',
+        scale: 1.015,
+        boxShadow: '0 0 30px rgba(212, 168, 83, 0.08), inset 0 0 12px rgba(212, 168, 83, 0.03)',
       }}
-      whileTap={{ scale: 0.98 }}
+      whileTap={{ scale: 0.985 }}
     >
       {/* Hover gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-r from-gold-400/0 to-gold-400/0 group-hover:from-gold-400/[0.03] group-hover:to-transparent transition-all duration-500 rounded-xl" />
+      <div className="absolute inset-0 bg-gradient-to-r from-gold-400/0 to-gold-400/0 group-hover:from-gold-400/[0.04] group-hover:to-transparent transition-all duration-500 rounded-xl" />
 
       <div className="relative z-10 flex items-start gap-4">
         {/* Icon */}

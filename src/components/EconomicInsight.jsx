@@ -30,14 +30,14 @@ export default function EconomicInsight({ insight, consequence, onContinue, onOp
 
         {/* Modal card */}
         <motion.div
-          className="relative z-10 w-full max-w-2xl max-h-[85vh] overflow-y-auto glass-gold rounded-2xl"
+          className="relative z-10 w-full max-w-2xl max-h-[85vh] overflow-y-auto glass-gold rounded-2xl glow-gold-strong border border-gold-400/20"
           initial={{ opacity: 0, scale: 0.92, y: 30 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.92, y: 30 }}
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         >
           {/* Gold top accent */}
-          <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-gold-600 via-gold-400 to-gold-600 rounded-t-2xl" />
+          <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-gold-600 via-gold-400 to-gold-600 rounded-t-2xl shadow-[0_0_15px_rgba(212,168,83,0.5)]" />
 
           <div className="p-6 md:p-8">
             {/* Consequence result */}

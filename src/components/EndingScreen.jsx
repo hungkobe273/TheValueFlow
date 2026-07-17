@@ -28,10 +28,15 @@ const itemVariants = {
 };
 
 // Animated circular progress
+// Animated circular progress
 function ScoreCircle({ label, value, color, delay }) {
   const radius = 40;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (value / 100) * circumference;
+
+  const glowClass = color === '#60a5fa' ? 'glow-blue' :
+                    color === '#34d399' ? 'glow-green' :
+                    color === '#fbbf24' ? 'glow-yellow' : '';
 
   return (
     <motion.div
@@ -61,6 +66,7 @@ function ScoreCircle({ label, value, color, delay }) {
             strokeWidth="4"
             strokeLinecap="round"
             strokeDasharray={circumference}
+            className={glowClass}
             initial={{ strokeDashoffset: circumference }}
             animate={{ strokeDashoffset }}
             transition={{ delay: delay + 0.3, duration: 1.5, ease: 'easeOut' }}

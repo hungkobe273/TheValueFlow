@@ -31,12 +31,32 @@ export default function HomePage({ onStart }) {
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-cinema-black">
       {/* Background layers */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 overflow-hidden">
         {/* Radial gradient */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(212,168,83,0.08)_0%,_transparent_70%)]" />
         
         {/* Subtle vignette */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_40%,_rgba(0,0,0,0.6)_100%)]" />
+
+        {/* Blurry Ambient Orbs for premium depth */}
+        <motion.div
+          className="absolute -top-40 -left-40 w-[450px] h-[450px] rounded-full bg-gold-500/5 blur-[120px] pointer-events-none"
+          animate={{
+            x: [0, 80, 0],
+            y: [0, 100, 0],
+            scale: [1, 1.2, 1],
+          }}
+          transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        <motion.div
+          className="absolute -bottom-40 -right-40 w-[450px] h-[450px] rounded-full bg-indigo-500/5 blur-[120px] pointer-events-none"
+          animate={{
+            x: [0, -100, 0],
+            y: [0, -80, 0],
+            scale: [1.2, 1, 1.2],
+          }}
+          transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
+        />
         
         {/* Animated gold line decorations */}
         <motion.div

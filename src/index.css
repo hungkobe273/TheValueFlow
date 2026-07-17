@@ -125,6 +125,18 @@ body {
                 0 0 60px rgba(218, 37, 29, 0.05);
   }
 
+  .glow-blue {
+    filter: drop-shadow(0 0 8px rgba(96, 165, 250, 0.6));
+  }
+
+  .glow-green {
+    filter: drop-shadow(0 0 8px rgba(52, 211, 153, 0.6));
+  }
+
+  .glow-yellow {
+    filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.6));
+  }
+
   .border-gold {
     border-color: rgba(212, 168, 83, 0.3);
   }
