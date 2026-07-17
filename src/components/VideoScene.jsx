@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { backgroundThemes } from '../data/storyData';
 
@@ -11,6 +11,9 @@ const placeholderParticles = Array.from({ length: 8 }, (_, i) => ({
   delay: Math.random() * 3,
 }));
 
+// VideoScene always renders full-screen.
+// After video ends, it stays on the last frame (paused) while narration
+// overlays on top — cinematic visual novel style.
 export default function VideoScene({ scene, onVideoEnd, isActive }) {
   const [videoFailed, setVideoFailed] = useState(false);
   const [videoLoaded, setVideoLoaded] = useState(false);
@@ -28,7 +31,7 @@ export default function VideoScene({ scene, onVideoEnd, isActive }) {
     };
   }, [scene.id]);
 
-  // Auto-advance for placeholder mode
+  // Auto-advance for placeholder mode only
   useEffect(() => {
     if ((videoFailed || !scene.video) && isActive) {
       timerRef.current = setTimeout(() => {
@@ -40,41 +43,32 @@ export default function VideoScene({ scene, onVideoEnd, isActive }) {
     }
   }, [videoFailed, scene.video, isActive, onVideoEnd]);
 
-  // Handle video error
-  const handleVideoError = () => {
-    setVideoFailed(true);
-  };
-
-  const handleVideoLoaded = () => {
-    setVideoLoaded(true);
-  };
-
-  const handleVideoEnded = () => {
-    onVideoEnd();
-  };
+  const handleVideoError = () => setVideoFailed(true);
+  const handleVideoLoaded = () => setVideoLoaded(true);
+  const handleVideoEnded = () => onVideoEnd();
 
   const showPlaceholder = !scene.video || videoFailed;
 
   return (
     <motion.div
-      className="relative w-full overflow-hidden bg-black"
-      style={{ aspectRatio: '16/9', maxHeight: '56vh' }}
+      className="relative w-full h-screen overflow-hidden bg-black"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
     >
-      {/* Letterbox bars */}
-      <div className="absolute top-0 left-0 right-0 h-[8%] bg-black z-10" />
-      <div className="absolute bottom-0 left-0 right-0 h-[8%] bg-black z-10" />
+      {/* Letterbox bars — cinematic framing */}
+      <div className="absolute top-0 left-0 right-0 h-[7%] bg-black z-10 pointer-events-none" />
+      <div className="absolute bottom-0 left-0 right-0 h-[7%] bg-black z-10 pointer-events-none" />
 
-      {/* Real video player */}
+      {/* Real video — no loop, pauses on last frame naturally */}
       {!showPlaceholder && (
         <video
           ref={videoRef}
           src={scene.video}
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-contain"
           autoPlay
           playsInline
+          loop={false}
           onError={handleVideoError}
           onLoadedData={handleVideoLoaded}
           onEnded={handleVideoEnded}
@@ -157,7 +151,7 @@ export default function VideoScene({ scene, onVideoEnd, isActive }) {
           />
 
           {/* Ambient text */}
-          <div className="absolute bottom-[12%] left-0 right-0 text-center z-20">
+          <div className="absolute bottom-[16%] left-0 right-0 text-center z-20">
             <motion.p
               className="text-white/20 text-xs md:text-sm tracking-[0.2em] uppercase"
               initial={{ opacity: 0 }}
@@ -170,7 +164,7 @@ export default function VideoScene({ scene, onVideoEnd, isActive }) {
 
           {/* Auto-advance progress bar */}
           {isActive && (
-            <div className="absolute bottom-[8%] left-[10%] right-[10%] z-20">
+            <div className="absolute bottom-[9%] left-[10%] right-[10%] z-20">
               <div className="h-0.5 bg-white/5 rounded-full overflow-hidden">
                 <motion.div
                   className="h-full bg-gold-400/40 rounded-full"
@@ -181,12 +175,21 @@ export default function VideoScene({ scene, onVideoEnd, isActive }) {
               </div>
             </div>
           )}
+
+          {/* Click to skip placeholder */}
+          {isActive && (
+            <button
+              onClick={onVideoEnd}
+              className="absolute inset-0 z-30 cursor-pointer"
+              aria-label="Bỏ qua"
+            />
+          )}
         </div>
       )}
 
-      {/* Scene title overlay */}
+      {/* Scene title overlay — bottom left, above letterbox */}
       <motion.div
-        className="absolute bottom-[12%] left-4 md:left-8 z-20"
+        className="absolute bottom-[10%] left-4 md:left-8 z-20"
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.5, duration: 0.6 }}
@@ -200,15 +203,6 @@ export default function VideoScene({ scene, onVideoEnd, isActive }) {
           </p>
         </div>
       </motion.div>
-
-      {/* Click to skip (placeholder only) */}
-      {showPlaceholder && isActive && (
-        <button
-          onClick={onVideoEnd}
-          className="absolute inset-0 z-30 cursor-pointer"
-          aria-label="Bỏ qua"
-        />
-      )}
     </motion.div>
   );
 }

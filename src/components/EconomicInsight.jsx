@@ -1,6 +1,14 @@
 import { motion, AnimatePresence } from 'framer-motion';
+import { useEffect } from 'react';
 
-export default function EconomicInsight({ insight, consequence, onContinue }) {
+export default function EconomicInsight({ insight, consequence, onContinue, onOpen }) {
+  // Play chime when insight modal opens
+  useEffect(() => {
+    if (insight && onOpen) {
+      onOpen();
+    }
+  }, [insight]);
+
   if (!insight) return null;
 
   return (

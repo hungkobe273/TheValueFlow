@@ -7,6 +7,8 @@ import ChoicePanel from './ChoicePanel';
 import EconomicInsight from './EconomicInsight';
 import ProgressBar from './ProgressBar';
 import DecisionJournal from './DecisionJournal';
+import AudioToggle from './AudioToggle';
+import useAudioEngine from '../hooks/useAudioEngine';
 
 // Scene phases: video → narration → choice → insight → transition
 const PHASES = {
@@ -24,6 +26,8 @@ export default function StoryPlayer({ onEnd, onHome }) {
   const [selectedChoice, setSelectedChoice] = useState(null);
   const [journalOpen, setJournalOpen] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
+
+  const audio = useAudioEngine();
 
   const currentScene = storyData[currentSceneId];
 
@@ -50,6 +54,7 @@ export default function StoryPlayer({ onEnd, onHome }) {
 
   const handleChoice = useCallback((choice) => {
     setSelectedChoice(choice);
+    audio.playClick();
     
     // Record decision
     setDecisions(prev => [
@@ -65,12 +70,11 @@ export default function StoryPlayer({ onEnd, onHome }) {
     // If next scene has insight, go through insight first
     const nextScene = storyData[choice.nextScene];
     if (nextScene?.insight) {
-      // Transition to result scene first, then show insight
       advanceToScene(choice.nextScene);
     } else {
       advanceToScene(choice.nextScene);
     }
-  }, [currentScene]);
+  }, [currentScene, audio]);
 
   const handleInsightContinue = useCallback(() => {
     if (currentScene.nextScene === 'ending') {
@@ -86,6 +90,7 @@ export default function StoryPlayer({ onEnd, onHome }) {
       return;
     }
 
+    audio.playTransition();
     setIsTransitioning(true);
     
     // Fade out, then change scene, then fade in
@@ -94,7 +99,7 @@ export default function StoryPlayer({ onEnd, onHome }) {
       setPhase(PHASES.VIDEO);
       setIsTransitioning(false);
     }, 800);
-  }, [decisions, onEnd]);
+  }, [decisions, onEnd, audio]);
 
   if (!currentScene) {
     return (
@@ -105,7 +110,10 @@ export default function StoryPlayer({ onEnd, onHome }) {
   }
 
   return (
-    <div className="relative min-h-screen bg-cinema-black overflow-hidden">
+    <div
+      className="relative min-h-screen bg-cinema-black overflow-hidden"
+      onPointerDown={() => { audio.init(); audio.resume(); }}
+    >
       {/* Progress Bar */}
       <ProgressBar
         currentChapter={currentChapter}
@@ -135,6 +143,9 @@ export default function StoryPlayer({ onEnd, onHome }) {
         onClose={() => setJournalOpen(false)}
       />
 
+      {/* Audio toggle */}
+      <AudioToggle isMuted={audio.isMuted} onToggle={audio.toggleMute} />
+
       {/* Scene transition overlay */}
       <AnimatePresence>
         {isTransitioning && (
@@ -148,45 +159,60 @@ export default function StoryPlayer({ onEnd, onHome }) {
         )}
       </AnimatePresence>
 
-      {/* Main content */}
+      {/* Video — lives OUTSIDE AnimatePresence so phase changes never remount it.
+           Video plays once, pauses on last frame, stays visible under narration/choices. */}
+      <AnimatePresence mode="wait">
+        {(phase === PHASES.VIDEO || phase === PHASES.NARRATION || phase === PHASES.CHOICE) && (
+          <motion.div
+            key={currentSceneId + '_video'}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            className="absolute inset-0"
+          >
+            <VideoScene
+              scene={currentScene}
+              onVideoEnd={handleVideoEnd}
+              isActive={phase === PHASES.VIDEO}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Main content — only overlays animate on phase change */}
       <AnimatePresence mode="wait">
         <motion.div
           key={currentSceneId + phase}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.5 }}
-          className="min-h-screen flex flex-col"
+          transition={{ duration: 0.4 }}
+          className="relative min-h-screen"
         >
-          {/* Video Scene - always visible during video and narration phases */}
-          {(phase === PHASES.VIDEO || phase === PHASES.NARRATION || phase === PHASES.CHOICE) && (
-            <div className="flex-shrink-0">
-              <VideoScene
-                scene={currentScene}
-                onVideoEnd={handleVideoEnd}
-                isActive={phase === PHASES.VIDEO}
-              />
-            </div>
-          )}
-
-          {/* Narration */}
+          {/* Narration — overlays on top of the paused video */}
           {phase === PHASES.NARRATION && (
-            <div className="flex-1 flex items-end pb-8 px-4 md:px-8 lg:px-16">
-              <div className="w-full max-w-4xl mx-auto">
+            <div className="absolute inset-0 flex items-end pb-10 px-4 md:px-8 lg:px-16 z-20">
+              {/* Dark gradient behind text for readability */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent pointer-events-none" />
+              <div className="relative w-full max-w-4xl mx-auto">
                 <SceneNarration
                   narrator={currentScene.narrator}
                   text={currentScene.narration}
                   sceneTitle={currentScene.title}
                   onComplete={handleNarrationComplete}
+                  onTypingSound={audio.playTyping}
                 />
               </div>
             </div>
           )}
 
-          {/* Choices */}
+          {/* Choices — overlays on top of the paused video */}
           {phase === PHASES.CHOICE && currentScene.choices && (
-            <div className="flex-1 flex items-end pb-8 px-4 md:px-8 lg:px-16">
-              <div className="w-full max-w-3xl mx-auto">
+            <div className="absolute inset-0 flex items-end pb-10 px-4 md:px-8 lg:px-16 z-20">
+              {/* Dark gradient behind choices for readability */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent pointer-events-none" />
+              <div className="relative w-full max-w-3xl mx-auto">
                 <ChoicePanel
                   choices={currentScene.choices}
                   onChoose={handleChoice}
@@ -201,6 +227,7 @@ export default function StoryPlayer({ onEnd, onHome }) {
               insight={currentScene.insight}
               consequence={selectedChoice?.consequence || ''}
               onContinue={handleInsightContinue}
+              onOpen={audio.playInsight}
             />
           )}
         </motion.div>
@@ -214,6 +241,7 @@ export default function StoryPlayer({ onEnd, onHome }) {
             initial={{ opacity: 1 }}
             animate={{ opacity: 0 }}
             transition={{ duration: 1.5, delay: 1.5 }}
+            onAnimationStart={() => audio.playChapterReveal()}
           >
             <motion.div
               className="text-center"

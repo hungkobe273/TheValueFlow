@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 
-export default function SceneNarration({ narrator, text, sceneTitle, onComplete }) {
+export default function SceneNarration({ narrator, text, sceneTitle, onComplete, onTypingSound }) {
   const [displayedText, setDisplayedText] = useState('');
   const [isComplete, setIsComplete] = useState(false);
   const [isSkipped, setIsSkipped] = useState(false);
@@ -21,6 +21,10 @@ export default function SceneNarration({ narrator, text, sceneTitle, onComplete 
       indexRef.current += 1;
       if (indexRef.current <= text.length) {
         setDisplayedText(text.slice(0, indexRef.current));
+        // Play typing tick every 2 characters — avoids audio spam at 30ms interval
+        if (onTypingSound && indexRef.current % 2 === 0) {
+          onTypingSound();
+        }
       } else {
         clearInterval(intervalRef.current);
         setIsComplete(true);
@@ -43,11 +47,12 @@ export default function SceneNarration({ narrator, text, sceneTitle, onComplete 
 
   return (
     <motion.div
-      className="glass-dark rounded-2xl p-6 md:p-8 cursor-pointer"
+      className="glass-dark rounded-2xl p-5 md:p-7 cursor-pointer"
+      style={{ background: 'rgba(5, 5, 10, 0.75)' }}
       onClick={handleSkip}
-      initial={{ opacity: 0, y: 40 }}
+      initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
     >
       {/* Scene title */}
       {sceneTitle && (
