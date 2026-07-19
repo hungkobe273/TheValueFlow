@@ -1,0 +1,296 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================
+   DÒNG CHẢY GIÁ TRỊ — Global Styles
+   ========================================== */
+
+:root {
+  --gold: #d4a853;
+  --gold-light: #f0d68a;
+  --gold-dark: #a07830;
+  --vn-red: #da251d;
+  --vn-red-light: #ff4444;
+  --cinema-black: #0a0a0f;
+  --cinema-dark: #111118;
+  --cinema-gray: #1a1a25;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--cinema-black);
+  color: #e8e8e8;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Narration serif font */
+.font-narration {
+  font-family: 'Playfair Display', 'Georgia', serif;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--cinema-black);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--gold-dark);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gold);
+}
+
+/* Selection */
+::selection {
+  background: rgba(212, 168, 83, 0.3);
+  color: #fff;
+}
+
+/* ==========================================
+   Glassmorphism Utilities
+   ========================================== */
+
+@layer utilities {
+  .glass {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .glass-dark {
+    background: rgba(10, 10, 15, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .glass-gold {
+    background: rgba(212, 168, 83, 0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(212, 168, 83, 0.2);
+  }
+
+  .text-gold {
+    color: var(--gold);
+  }
+
+  .text-gold-light {
+    color: var(--gold-light);
+  }
+
+  .bg-cinema {
+    background-color: var(--cinema-black);
+  }
+
+  .bg-cinema-dark {
+    background-color: var(--cinema-dark);
+  }
+
+  .glow-gold {
+    box-shadow: 0 0 20px rgba(212, 168, 83, 0.15),
+                0 0 60px rgba(212, 168, 83, 0.05);
+  }
+
+  .glow-gold-strong {
+    box-shadow: 0 0 20px rgba(212, 168, 83, 0.3),
+                0 0 60px rgba(212, 168, 83, 0.1),
+                0 0 100px rgba(212, 168, 83, 0.05);
+  }
+
+  .glow-red {
+    box-shadow: 0 0 20px rgba(218, 37, 29, 0.2),
+                0 0 60px rgba(218, 37, 29, 0.05);
+  }
+
+  .glow-blue {
+    filter: drop-shadow(0 0 8px rgba(96, 165, 250, 0.6));
+  }
+
+  .glow-green {
+    filter: drop-shadow(0 0 8px rgba(52, 211, 153, 0.6));
+  }
+
+  .glow-yellow {
+    filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.6));
+  }
+
+  .border-gold {
+    border-color: rgba(212, 168, 83, 0.3);
+  }
+
+  .border-gold-strong {
+    border-color: rgba(212, 168, 83, 0.6);
+  }
+}
+
+/* ==========================================
+   Cinematic Letterbox
+   ========================================== */
+
+.letterbox::before,
+.letterbox::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 12%;
+  background: #000;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.letterbox::before {
+  top: 0;
+}
+
+.letterbox::after {
+  bottom: 0;
+}
+
+/* ==========================================
+   Animated Background Particles
+   ========================================== */
+
+.particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: rgba(212, 168, 83, 0.3);
+  border-radius: 50%;
+  animation: float-particle 8s ease-in-out infinite;
+}
+
+@keyframes float-particle {
+  0%, 100% {
+    transform: translateY(0) translateX(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-100px) translateX(50px);
+    opacity: 0.6;
+  }
+}
+
+/* ==========================================
+   Typewriter Cursor
+   ========================================== */
+
+.typewriter-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1.2em;
+  background-color: var(--gold);
+  margin-left: 2px;
+  animation: blink-cursor 0.8s ease-in-out infinite;
+  vertical-align: text-bottom;
+}
+
+@keyframes blink-cursor {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* ==========================================
+   Video Placeholder Shimmer
+   ========================================== */
+
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(212, 168, 83, 0.03),
+    transparent
+  );
+  animation: shimmer-move 4s ease-in-out infinite;
+}
+
+@keyframes shimmer-move {
+  0% { left: -100%; }
+  100% { left: 200%; }
+}
+
+/* ==========================================
+   Pulse Ring Animation
+   ========================================== */
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+.pulse-ring::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border: 2px solid var(--gold);
+  border-radius: inherit;
+  animation: pulse-ring 2s ease-out infinite;
+}
+
+/* ==========================================
+   Gradient text
+   ========================================== */
+
+.gradient-text-gold {
+  background: linear-gradient(135deg, var(--gold-light), var(--gold), var(--gold-dark));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ==========================================
+   Responsive
+   ========================================== */
+
+@media (max-width: 768px) {
+  .letterbox::before,
+  .letterbox::after {
+    height: 6%;
+  }
+}
