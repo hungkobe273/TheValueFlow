@@ -175,6 +175,7 @@ export default function StoryPlayer({ onEnd, onHome }) {
               scene={currentScene}
               onVideoEnd={handleVideoEnd}
               isActive={phase === PHASES.VIDEO}
+              delayed={currentScene.id.endsWith('_intro')}
             />
           </motion.div>
         )}

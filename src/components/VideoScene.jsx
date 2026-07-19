@@ -14,11 +14,13 @@ const placeholderParticles = Array.from({ length: 8 }, (_, i) => ({
 // VideoScene always renders full-screen.
 // After video ends, it stays on the last frame (paused) while narration
 // overlays on top — cinematic visual novel style.
-export default function VideoScene({ scene, onVideoEnd, isActive }) {
+export default function VideoScene({ scene, onVideoEnd, isActive, delayed = false }) {
   const [videoFailed, setVideoFailed] = useState(false);
   const [videoLoaded, setVideoLoaded] = useState(false);
+  const [videoReady, setVideoReady] = useState(!delayed);
   const videoRef = useRef(null);
   const timerRef = useRef(null);
+  const delayRef = useRef(null);
 
   const theme = backgroundThemes[scene.backgroundTheme] || backgroundThemes['reflection'];
 
@@ -26,10 +28,33 @@ export default function VideoScene({ scene, onVideoEnd, isActive }) {
   useEffect(() => {
     setVideoFailed(false);
     setVideoLoaded(false);
+    setVideoReady(!delayed);
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
+      if (delayRef.current) clearTimeout(delayRef.current);
     };
-  }, [scene.id]);
+  }, [scene.id, delayed]);
+
+  // Handle delay timing if required (e.g. for chapter intros)
+  useEffect(() => {
+    if (!delayed) return;
+    delayRef.current = setTimeout(() => {
+      setVideoReady(true);
+    }, 3000);
+    return () => {
+      if (delayRef.current) clearTimeout(delayRef.current);
+    };
+  }, [scene.id, delayed]);
+
+  // Control video play/pause status based on videoReady state
+  useEffect(() => {
+    if (!videoRef.current || videoFailed || !scene.video) return;
+    if (videoReady) {
+      videoRef.current.play().catch(() => {});
+    } else {
+      videoRef.current.pause();
+    }
+  }, [videoReady, videoFailed, scene.video]);
 
   // Auto-advance for placeholder mode only
   useEffect(() => {
@@ -60,13 +85,11 @@ export default function VideoScene({ scene, onVideoEnd, isActive }) {
       <div className="absolute top-0 left-0 right-0 h-[7%] bg-black z-10 pointer-events-none" />
       <div className="absolute bottom-0 left-0 right-0 h-[7%] bg-black z-10 pointer-events-none" />
 
-      {/* Real video — no loop, pauses on last frame naturally */}
       {!showPlaceholder && (
         <video
           ref={videoRef}
           src={scene.video ? `${import.meta.env.BASE_URL}${scene.video.startsWith('/') ? scene.video.slice(1) : scene.video}` : ''}
           className="absolute inset-0 w-full h-full object-contain"
-          autoPlay
           playsInline
           loop={false}
           onError={handleVideoError}
